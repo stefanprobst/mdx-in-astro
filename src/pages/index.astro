@@ -1,0 +1,40 @@
+---
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { processMdx } from '../lib/content/mdx';
+
+// (1) import mdx file via `@astrojs/mdx`
+import Content, { frontmatter } from '../content/posts/test.mdx';
+import RedText from '../components/red-text.astro';
+
+// (2) use astro content collections
+import { getEntry } from 'astro:content';
+const entry = await getEntry('posts', "test");
+const frontmatter2 = entry.data
+const { Content: Content2 } = await entry.render()
+
+// (3) process mdx string with `@mdx-js/mdx`
+const { default: Content3, frontmatter: frontmatter3 } = await processMdx(
+	await readFile(join(process.cwd(), './src/content/posts/test.mdx'), { encoding: "utf-8"})
+);
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Astro</title>
+	</head>
+	<body>
+		<Content components={{ RedText }} />
+		<pre>{JSON.stringify(frontmatter)}</pre>
+		<hr />
+		<Content2 components={{ RedText }} />
+		<pre>{JSON.stringify(frontmatter2)}</pre>
+		<hr />
+		<Content3 />
+		<pre>{JSON.stringify(frontmatter3)}</pre>
+		<hr />
+	</body>
+</html>
